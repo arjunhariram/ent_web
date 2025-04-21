@@ -1,0 +1,23 @@
+services:
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5003:5173"
+    volumes:
+      - ./frontend/app:/app
+      - /app/node_modules
+    working_dir: /app
+    command: ["yarn", "dev", "--host", "0.0.0.0"]
+
+  backend:
+    build: ./backend
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend:/usr/src/app
+      - ./frontend/app/dist:/usr/src/frontend/app/dist  
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - frontend

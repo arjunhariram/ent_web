@@ -1,0 +1,44 @@
+.mobile-footer {
+  background-color: #2c3e50;
+  color: #fff;
+  padding: 1rem;
+  text-align: center;
+}
+
+.mobile-footer-content {
+  font-size: 0.9rem;
+}
+
+.mobile-footer-content a {
+  color: #3498db;
+  text-decoration: none;
+  margin: 0 0.5rem;
+}
+
+.mobile-footer-content a:hover {
+  text-decoration: underline;
+  color: #fff;
+}
+
+.mobile-social-icons {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.mobile-social-icons a {
+  font-size: 0.9rem;
+  color: #fff;
+  text-decoration: none;
+}
+
+.mobile-social-icons a img {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.3s;
+}
+
+.mobile-social-icons a:hover img {
+  transform: scale(1.1);
+}

@@ -1,0 +1,107 @@
+.match-card {
+  position: relative;
+  flex: 0 0 auto;
+  width: 300px;
+  height: 180px;
+  margin-right: 1.8rem;
+  padding: 1.2rem;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 5px 15px #0000001a;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition:transform .2s, box-shadow .3s
+}
+
+.match-card:hover {
+  transform: scale(1.05);
+  box-shadow:0 10px 30px #0000001a
+}
+
+.match-status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #2c3e50;
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  padding:0
+}
+
+.match-status-label {
+  background-color: #2c3e50;
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.team-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin:1rem 0
+}
+
+.team {
+  display: flex;
+  flex-direction: column;
+  align-items:center
+}
+
+.team-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-bottom: .5rem;
+  box-shadow:0 1px 3px #0000001a
+}
+
+.team-name {
+  font-size: .85rem;
+  font-weight: 600;
+  color:#333
+}
+
+.vs {
+  font-size: 1rem;
+  font-weight: 700;
+  font-style: italic;
+  color:#555
+}
+
+.tournament-name {
+  font-size: .85rem;
+  color: #777;
+  margin:.5rem 0
+}
+
+.match-score {
+  font-size: .9rem;
+  color: #333;
+  font-weight: 500;
+  margin:.5rem 0
+}
+
+.match-card button {
+  padding: .6rem 1.2rem;
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  color: #fff;
+  border: none;
+  border-radius: .5rem;
+  cursor: pointer;
+  font-size: .85rem;
+  margin-top: .5rem;
+  transition:background .3s
+}
+
+.match-card button:hover {
+  background:linear-gradient(135deg, #34495e, #2c3e50)
+}

@@ -1,0 +1,84 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #2c3e50;
+  padding: 1.2rem 2rem;
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo-placeholder {
+  width: 150px;
+  height: 40px;
+  background: #fff;
+  border-radius: 5px;
+}
+
+.navbar-buttons {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+}
+
+.navbar-buttons button {
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.navbar-buttons button.request-button {
+  padding: 0.7rem 1.4rem;
+  border-radius: 0.5rem;
+  background: #3498db;
+  color: #fff;
+  font-weight: 500;
+  position: relative;
+}
+
+.navbar-buttons button.request-button:hover {
+  background: #2980b9;
+}
+
+.navbar-buttons button.profile-button {
+  padding: 0.6rem;
+  border-radius: 50%;
+  background-color: #fff;
+  color: #3498db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar-buttons button.profile-button:hover {
+  background-color: #ecf0f1;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .logo-placeholder {
+    width: 120px;
+    height: 35px;
+    margin-bottom: 1rem;
+  }
+
+  .navbar-buttons {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .navbar-buttons button {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .navbar-buttons button.profile-button {
+    padding: 0.5rem;
+  }
+}

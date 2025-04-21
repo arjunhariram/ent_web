@@ -1,0 +1,132 @@
+.category-section {
+    margin: 1rem 25px 70px; /* Updated left and right margin to 25px */
+    padding: 45px;
+    padding-top: 8px;
+    background-color: #fff;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 0.75rem;
+    position: relative; /* Ensure proper positioning for child elements */
+    overflow: visible; /* Ensure buttons are fully visible */
+}
+
+.category-section h2 {
+    font-size: 1.75rem;
+    margin: 0 0 2rem;
+    padding: 10px 0;
+    border-bottom: 3px solid #2c3e50;
+    color: #ff4b2b;
+    background: linear-gradient(90deg, #ff416c, #ff4b2b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: left;
+}
+
+.scroll-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 1.5rem;
+    padding-bottom: 1rem;
+    scroll-behavior: smooth;
+    position: relative;
+    white-space: nowrap;
+}
+
+.scroll-container::-webkit-scrollbar {
+    display: none;
+}
+
+.scroll-container > .match-card {
+    flex: 0 0 300px;
+    width: 300px;
+    height: 180px;
+}
+
+.scroll-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(179, 71, 0, 0.7);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s;
+    z-index: 20; /* Increased z-index */
+    opacity: 0; /* Initially hidden */
+    pointer-events: none; /* Disable interaction */
+    transition: opacity 0.3s ease; /* Smooth fade-in/out */
+}
+
+.scroll-button.left,
+.scroll-button.right {
+    top: 47%; /* Ensure both buttons are vertically centered */
+    transform: translateY(-50%); /* Align both buttons consistently */
+}
+
+.category-section:hover .scroll-button,
+.scroll-button:hover {
+    opacity: 1; /* Show buttons on hover */
+    pointer-events: auto; /* Enable interaction */
+}
+
+.category-section:hover .scroll-button,
+.scroll-container:hover + .scroll-button {
+    pointer-events: auto; /* Enable interaction */
+}
+
+.scroll-button.left {
+    left: -60px; /* Pushed 15px further to the left */
+}
+
+.scroll-button.right {
+    right: -60px; /* Pushed 15px further to the right */
+}
+
+.scroll-button:hover {
+    background: rgba(179, 71, 0, 1);
+}
+
+.scroll-wrapper {
+    position: relative; /* Ensure buttons are positioned relative to this container */
+    display: flex;
+    align-items: center; /* Vertically align buttons with the scroll-container */
+}
+
+@media (max-width: 768px) {
+    .category-section {
+        margin: 1rem 0 50px;
+        padding: 0 10px;
+    }
+
+    .category-section h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .scroll-container > .match-card {
+        flex: 0 0 250px;
+        width: 250px;
+        height: 150px;
+    }
+
+    .scroll-button {
+        width: 30px;
+        height: 30px;
+        font-size: 1.2rem;
+    }
+
+    .scroll-button.left {
+        left: -15px;
+    }
+
+    .scroll-button.right {
+        right: -15px;
+    }
+}

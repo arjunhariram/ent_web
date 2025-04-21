@@ -1,0 +1,313 @@
+/* YouTube-style layout for video view page - SCOPED to avoid affecting main page */
+.video-view-page {
+  background-color: #f9f9f9;
+  min-height: 100vh;
+}
+
+.video-view-page .youtube-layout-container {
+  display: flex;
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 20px;
+  gap: 24px;
+}
+
+/* Left column - Video and match info */
+.video-view-page .video-main-column {
+  flex: 0 0 66%;
+  max-width: 66%;
+}
+
+/* Fixed Video player container with clean border */
+.video-view-page .video-player-container {
+  margin-bottom: 20px;
+  border: 1px solid #2c3e50;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.video-view-page .video-player-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Hide subtitle bar jagged edges */
+.video-view-page .video-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Override any video player styles to ensure clean borders */
+.video-view-page .video-player-wrapper video {
+  display: block;
+}
+
+/* Match info card - redesigned and more compact */
+.video-view-page .match-info-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  position: relative;
+  margin-bottom: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.video-view-page .match-status-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background-color: #1a365d;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+.video-view-page .match-status-badge.live {
+  background-color: #e53935;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.video-view-page .match-teams-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.video-view-page .team-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 40%;
+}
+
+.video-view-page .team-logo-container {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.video-view-page .team-logo {
+  max-width: 85%;
+  max-height: 85%;
+  object-fit: contain;
+}
+
+.video-view-page .team-name {
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  color: #333;
+}
+
+.video-view-page .match-center-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20%;
+}
+
+.video-view-page .vs-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #757575;
+  margin-bottom: 8px;
+}
+
+.video-view-page .match-score {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+}
+
+.video-view-page .match-details-section {
+  text-align: center;
+}
+
+.video-view-page .tournament-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.video-view-page .match-description {
+  font-size: 14px;
+  color: #757575;
+  line-height: 1.5;
+}
+
+/* Enhanced Right column - Recommendations */
+.video-view-page .video-recommendations-column {
+  flex: 0 0 34%;
+  max-width: 34%;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  align-self: flex-start;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.video-view-page .recommendations-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+}
+
+.video-view-page .recommendations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.video-view-page .recommendation-card-wrapper {
+  width: 100%;
+}
+
+/* Override MatchCard styles for recommendations ONLY in video view */
+.video-view-page .recommendation-card-wrapper .match-card {
+  width: 100%;
+  margin-right: 0;
+  height: auto;
+  min-height: 140px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.video-view-page .recommendation-card-wrapper .match-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Enhanced match status label in recommendation cards */
+.video-view-page .recommendation-card-wrapper .match-status-label {
+  background-color: #1a365d;
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  font-size: 12px;
+}
+
+.video-view-page .recommendation-card-wrapper .match-card:hover .match-status-label {
+  background-color: #0f2942;
+}
+
+/* Live badge special styling */
+.video-view-page .recommendation-card-wrapper .match-status-label.live,
+.video-view-page .recommendation-card-wrapper .match-status-label:contains("Live") {
+  background-color: #e53935;
+}
+
+/* Loading and no recommendations states */
+.video-view-page .loading-recommendations,
+.video-view-page .no-recommendations {
+  padding: 20px;
+  text-align: center;
+  color: #757575;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  font-size: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 1200px) {
+  .video-view-page .youtube-layout-container {
+    flex-direction: column;
+    padding: 16px;
+  }
+  
+  .video-view-page .video-main-column,
+  .video-view-page .video-recommendations-column {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  .video-view-page .video-recommendations-column {
+    margin-top: 20px;
+  }
+  
+  .video-view-page .team-logo-container {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .video-view-page .team-name {
+    font-size: 16px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .video-view-page .youtube-layout-container {
+    padding: 12px;
+  }
+  
+  .video-view-page .match-teams-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .video-view-page .team-column {
+    width: 100%;
+  }
+  
+  .video-view-page .match-center-info {
+    width: 100%;
+    margin: 12px 0;
+  }
+  
+  .video-view-page .match-info-card {
+    padding: 16px;
+  }
+  
+  .video-view-page .match-status-badge {
+    position: static;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+}

@@ -1,0 +1,42 @@
+import React from 'react';
+import '../styles/footer.css';
+
+const Footer: React.FC = () => {
+  return (
+    <footer>
+      <div className="footer-content">
+        <div className="footer-section">
+          <p>&copy; 2025 Entproject - All Rights Reserved</p>
+        </div>
+        <div className="footer-section">
+          <p>Contact us: <a href="mailto:support@entproject.in">support@entproject.in</a></p>
+          <p>Office: 19 Palaniswamy Naidu Street, Coimbatore, Tamil Nadu, India - 641037</p>
+        </div>
+        <div className="footer-section">
+          <p>Follow us:</p>
+          <div className="social-icons">
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.723-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-2.717 0-4.92 2.203-4.92 4.917 0 .386.044.762.127 1.124-4.087-.205-7.713-2.164-10.141-5.144-.423.725-.666 1.562-.666 2.457 0 1.694.863 3.188 2.173 4.065-.802-.026-1.555-.246-2.213-.616v.062c0 2.366 1.684 4.342 3.918 4.788-.41.111-.843.171-1.287.171-.314 0-.621-.03-.921-.086.622 1.943 2.428 3.355 4.566 3.395-1.674 1.311-3.778 2.093-6.065 2.093-.394 0-.779-.023-1.161-.067 2.162 1.387 4.729 2.197 7.496 2.197 8.993 0 13.91-7.448 13.91-13.91 0-.211-.005-.423-.014-.633.954-.689 1.786-1.55 2.444-2.532z" />
+              </svg>
+            </a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 2.163c-5.488 0-9.837 4.449-9.837 9.837 0 4.355 3.657 8.837 8.837 8.837 5.488 0 9.837-4.449 9.837-9.837 0-4.355-3.657-8.837-8.837-8.837zm0 16.275c-3.556 0-6.438-2.882-6.438-6.438s2.882-6.438 6.438-6.438 6.438 2.882 6.438 6.438-2.882 6.438-6.438 6.438zm3.281-6.438c0 1.812-1.469 3.281-3.281 3.281s-3.281-1.469-3.281-3.281 1.469-3.281 3.281-3.281 3.281 1.469 3.281 3.281zm-3.281-2.25c-1.242 0-2.25 1.008-2.25 2.25s1.008 2.25 2.25 2.25 2.25-1.008 2.25-2.25-1.008-2.25-2.25-2.25z" />
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div className="footer-section">
+          <p>
+            <a href="#">About Us</a> | 
+            <a href="#">Privacy Policy</a> | 
+            <a href="#">Terms and Conditions</a>
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
