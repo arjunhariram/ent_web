@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/login_modal.css';
 import CreateAccount from './CreateAccount';
+import ForgetPasswordInput from './ForgetPasswordInput';
 
 interface LoginModalProps {
   onClose: () => void;
@@ -12,6 +13,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -26,6 +28,10 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose }) => {
   const switchToLogin = () => {
     setShowCreateAccount(false);
   };
+
+  const switchToForgotPassword = () => {
+    setShowForgotPassword(true);
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,6 +86,15 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose }) => {
     );
   }
 
+  if (showForgotPassword) {
+    return (
+      <ForgetPasswordInput
+        onClose={onClose}
+        onSwitchToLogin={() => setShowForgotPassword(false)}
+      />
+    );
+  }
+
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content">
@@ -121,6 +136,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose }) => {
         </form>
         <p className="create-account-link">
           Don't have an account? <a href="#" onClick={switchToCreateAccount}>Create Account</a>
+        </p>
+        <p className="forgot-password-link">
+          <a href="#" onClick={switchToForgotPassword}>Forgot Password?</a>
         </p>
       </div>
     </div>

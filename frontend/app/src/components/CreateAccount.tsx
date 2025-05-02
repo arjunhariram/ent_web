@@ -82,7 +82,25 @@ const CreateAccount: React.FC<CreateAccountProps> = ({ onClose, onSwitchToLogin 
         return;
       }
 
+      // Check if mobile number already exists
+      const checkResponse = await fetch('http://localhost:4000/api/user/check-mobile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mobileNumber })
+      }).catch(fetchError => {
+        throw fetchError;
+      });
 
+      const checkData = await checkResponse.json();
+      
+      if (checkData.exists) {
+        setMobileError('This mobile number is already registered. Please login instead.');
+        return;
+      }
+
+      // If mobile number doesn't exist, proceed with OTP validation
       const response = await fetch('http://localhost:4000/api/validate/validate-mobile', {
         method: 'POST',
         headers: {

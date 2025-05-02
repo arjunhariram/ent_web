@@ -27,6 +27,20 @@ export const setPassword = async (req, res) => {
       });
     }
     
+    // Check if user exists
+    const userCheckResult = await client.query(
+      'SELECT id FROM users WHERE mobile_number = $1',
+      [cleanNumber]
+    );
+    
+    // Prevent existing users from creating a new account
+    if (userCheckResult.rowCount > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'This mobile number is already registered. Please login instead.'
+      });
+    }
+    
     await client.query('BEGIN');
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
@@ -55,52 +69,27 @@ export const setPassword = async (req, res) => {
       `);
     }
     
-    const userCheckResult = await client.query(
-      'SELECT id FROM users WHERE mobile_number = $1',
-      [cleanNumber]
+    console.log('Creating new user with mobile:', cleanNumber);
+    
+    const result = await client.query(
+      'INSERT INTO users (mobile_number, password_hash, created_at) VALUES ($1, $2, NOW()) RETURNING id',
+      [cleanNumber, passwordHash]
     );
-    
-    let userId;
-    let result;
-    
-    if (userCheckResult.rowCount > 0) {
-      userId = userCheckResult.rows[0].id;
-      console.log('Updating existing user with ID:', userId);
-      
-      result = await client.query(
-        'UPDATE users SET password_hash = $1 WHERE id = $2 RETURNING id',
-        [passwordHash, userId]
-      );
-    } else {
-      console.log('Creating new user with mobile:', cleanNumber);
-      
-      result = await client.query(
-        'INSERT INTO users (mobile_number, password_hash, created_at) VALUES ($1, $2, NOW()) RETURNING id',
-        [cleanNumber, passwordHash]
-      );
-    }
     
     if (result.rowCount === 0) {
       throw new Error('Database operation failed');
     }
     
-    userId = result.rows[0].id;
+    const userId = result.rows[0].id;
     await client.query('COMMIT');
     
-    const verifyResult = await client.query(
-      'SELECT id FROM users WHERE mobile_number = $1',
-      [cleanNumber]
-    );
-    
-    console.log('Verification result:', verifyResult.rowCount > 0 ? 'User exists' : 'User not found');
     await redisClient.delete(`verified:${cleanNumber}`);
     console.log('Password set successfully for user ID:', userId);
     
     res.status(200).json({
       success: true,
       message: 'Account created successfully',
-      userId,
-      isNewUser: userCheckResult.rowCount === 0
+      userId
     });
   } catch (error) {
     await client.query('ROLLBACK');
