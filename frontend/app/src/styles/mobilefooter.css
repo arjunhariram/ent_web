@@ -3,6 +3,8 @@
   color: #fff;
   padding: 1rem;
   text-align: center;
+  height: var(--mobile-footer-height);
+  box-sizing: border-box;
 }
 
 .mobile-footer-content {

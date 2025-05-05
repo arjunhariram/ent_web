@@ -3,6 +3,7 @@ import LoginModal from './LoginModal';
 import ProfileDropdown from './ProfileDropdown';
 import ChangePasswordModal from './ChangePasswordModal';
 import '../styles/navbar.css';
+import logo from '../assets/tsconfig.app.png'; // Assuming the logo is placed in src/assets
 
 const Navbar: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -79,7 +80,7 @@ const Navbar: React.FC = () => {
   return (
     <>
       <nav className="navbar">
-        <div className="logo-placeholder"></div>
+        <img src={logo} alt="Entproject Logo" className="navbar-logo" />
         <div className="navbar-buttons">
           {isAuthenticated && (
             <button className="request-button">

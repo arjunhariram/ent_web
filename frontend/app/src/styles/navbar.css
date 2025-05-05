@@ -6,13 +6,24 @@
   padding: 1.2rem 2rem;
   color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: var(--navbar-height);
+  box-sizing: border-box;
 }
 
+/* Remove the placeholder styles */
+/*
 .logo-placeholder {
   width: 150px;
   height: 40px;
   background: #fff;
   border-radius: 5px;
+}
+*/
+
+/* Add styles for the actual logo */
+.navbar-logo {
+  height: 60px; /* Increased height from 40px */
+  width: auto; /* Maintain aspect ratio */
 }
 
 .navbar-buttons {
@@ -60,12 +71,6 @@
     flex-direction: column;
     align-items: flex-start;
     padding: 1rem;
-  }
-
-  .logo-placeholder {
-    width: 120px;
-    height: 35px;
-    margin-bottom: 1rem;
   }
 
   .navbar-buttons {

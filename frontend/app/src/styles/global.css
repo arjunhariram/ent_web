@@ -17,12 +17,30 @@ body {
     font-family: 'Arial', sans-serif;
 }
 
+:root {
+  --navbar-height: 92px;
+  --mobile-navbar-height: 68px;
+  --footer-height: 120px;
+  --mobile-footer-height: 110px;
+}
+
+.main-content {
+  min-height: calc(100vh - var(--navbar-height) - var(--footer-height));
+  padding: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 @media (max-width: 768px) {
     body {
         font-size: 14px;
         width: 100vw;
         overflow-x: hidden;
         width: 100%;
+    }
+
+    .main-content {
+        min-height: calc(100vh - var(--mobile-navbar-height) - var(--mobile-footer-height));
     }
 }
 

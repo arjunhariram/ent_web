@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import LoginModal from './LoginModal';
 import ProfileDropdown from './ProfileDropdown';
 import '../styles/mobilenavbar.css';
+import logo from '../assets/tsconfig.app.png'; // Import the logo
 
 const MobileNavbar: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,7 +38,8 @@ const MobileNavbar: React.FC = () => {
   return (
     <>
       <nav className="mobile-navbar">
-        <div className="mobile-logo-placeholder"></div>
+        {/* Replace the placeholder div with the logo image */}
+        <img src={logo} alt="Entproject Logo" className="mobile-navbar-logo" />
         <button
           id="mobileProfileBtn"
           className="mobile-profile-button"

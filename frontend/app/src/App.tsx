@@ -6,6 +6,7 @@ import MatchCardHolder from './components/MatchCardHolder';
 import MobileMatchCardHolder from './components/MobileMatchCardHolder';
 import Footer from './components/Footer';
 import MobileFooter from './components/MobileFooter';
+import NoMatches from './components/NoMatches';
 import VideoView from './Video_view';
 import { fetchMatches, SportMatches } from './services/MatchService';
 import './styles/global.css';
@@ -84,36 +85,45 @@ const App: React.FC = () => {
     return sport.charAt(0).toUpperCase() + sport.slice(1) + ' Matches';
   };
 
+  // Check if there are any matches across all sports
+  const hasAnyMatches = Object.values(matchData).some(matches => matches.length > 0);
+
   return (
     <>
       <AuthStateDebugger />
       {isMobile ? <MobileNavbar /> : <Navbar />}
-      {isMobile ? (
-        <>
-          {Object.entries(matchData).map(([sport, matches]) => (
-            matches.length > 0 && (
-              <MobileMatchCardHolder
-                key={sport}
-                title={formatSportTitle(sport)}
-                matches={matches}
-              />
-            )
-          ))}
-        </>
-      ) : (
-        <>
-          {Object.entries(matchData).map(([sport, matches]) => (
-            matches.length > 0 && (
-              <MatchCardHolder
-                key={sport}
-                title={formatSportTitle(sport)}
-                matches={matches}
-                containerId={`${sport}-matches`}
-              />
-            )
-          ))}
-        </>
-      )}
+      
+      <div className="main-content">
+        {!hasAnyMatches ? (
+          <NoMatches />
+        ) : isMobile ? (
+          <>
+            {Object.entries(matchData).map(([sport, matches]) => (
+              matches.length > 0 && (
+                <MobileMatchCardHolder
+                  key={sport}
+                  title={formatSportTitle(sport)}
+                  matches={matches}
+                />
+              )
+            ))}
+          </>
+        ) : (
+          <>
+            {Object.entries(matchData).map(([sport, matches]) => (
+              matches.length > 0 && (
+                <MatchCardHolder
+                  key={sport}
+                  title={formatSportTitle(sport)}
+                  matches={matches}
+                  containerId={`${sport}-matches`}
+                />
+              )
+            ))}
+          </>
+        )}
+      </div>
+      
       {isMobile ? <MobileFooter /> : <Footer />}
     </>
   );
