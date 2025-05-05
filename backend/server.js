@@ -80,12 +80,16 @@ app.use('/styles', Styles);
 app.use('/assets/teamlogos', TeamLogos);
 app.use('/', DefaultView);
 
+// Replace the 404 error handler with one that serves the HTML error page
 app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
+  // Send the 404 error page instead of a JSON response
+  res.status(404).sendFile(path.join(__dirname, '../frontend/app/src/pages/ErrorPage404.html'));
 });
 
+// Update general error handler to also serve the error page for server errors
 app.use((err, req, res, next) => {
-  res.status(500).json({ message: 'Server error' });
+  console.error('Server error:', err);
+  res.status(500).sendFile(path.join(__dirname, '../frontend/app/src/pages/ErrorPage404.html'));
 });
 
 const PORT = process.env.PORT || 4000;
