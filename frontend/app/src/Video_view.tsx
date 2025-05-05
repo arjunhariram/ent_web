@@ -7,7 +7,7 @@ import VideoPlayer from './components/VideoPlayer';
 import MatchCard from './components/MatchCard';
 import './styles/video-view.css';
 import Footer from './components/Footer';
-import { fetchMatches, Match } from './services/MatchService';
+import { fetchMatches, Match } from './services/MatchService.tsx';
 
 interface MatchDetails {
   matchStatus: string;

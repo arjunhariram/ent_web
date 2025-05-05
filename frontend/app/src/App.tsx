@@ -8,7 +8,7 @@ import Footer from './components/Footer';
 import MobileFooter from './components/MobileFooter';
 import NoMatches from './components/NoMatches';
 import VideoView from './Video_view';
-import { fetchMatches, SportMatches } from './services/MatchService';
+import { fetchMatches, SportMatches } from './services/MatchService.tsx';
 import './styles/global.css';
 import './App.css';
 import './styles/profile_dropdown.css';
