@@ -1,6 +1,6 @@
 // Video_view.tsx
 import React, { useEffect, useState } from 'react';
-import { useLocation, Navigate } from 'react-router-dom';
+import { useLocation, Navigate, useParams } from 'react-router-dom';
 import './styles/navbar.css';
 import Navbar from './components/Navbar';
 import VideoPlayer from './components/VideoPlayer';
@@ -19,11 +19,42 @@ interface MatchDetails {
 
 const VideoView: React.FC = () => {
   const location = useLocation();
-  const matchDetails = location.state as MatchDetails | undefined;
+  const { sport, tournament, team1, team2 } = useParams();
+  const [matchDetails, setMatchDetails] = useState<MatchDetails | undefined>(
+    location.state as MatchDetails | undefined
+  );
   const [recommendedMatches, setRecommendedMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   
   const hlsStreamUrl = "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8";
+
+  // Fetch match details if not available from location state
+  useEffect(() => {
+    const loadMatchDetailsFromParams = async () => {
+      if (!matchDetails && sport && tournament && team1 && team2) {
+        try {
+          const allMatches = await fetchMatches();
+          const sportMatches = allMatches[sport.toLowerCase()];
+          
+          if (sportMatches) {
+            const foundMatch = sportMatches.find(match => 
+              match.tournamentName === decodeURIComponent(tournament) &&
+              match.team1.name === decodeURIComponent(team1) &&
+              match.team2.name === decodeURIComponent(team2)
+            );
+            
+            if (foundMatch) {
+              setMatchDetails(foundMatch);
+            }
+          }
+        } catch (error) {
+          console.error('Error loading match details:', error);
+        }
+      }
+    };
+    
+    loadMatchDetailsFromParams();
+  }, [sport, tournament, team1, team2, matchDetails]);
 
   useEffect(() => {
     const loadRecommendedMatches = async () => {
@@ -53,10 +84,20 @@ const VideoView: React.FC = () => {
       }
     };
     
-    loadRecommendedMatches();
+    if (matchDetails) {
+      loadRecommendedMatches();
+    }
   }, [matchDetails]);
 
   if (!matchDetails) {
+    if (loading && (sport && tournament && team1 && team2)) {
+      return (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading match...</p>
+        </div>
+      );
+    }
     return <Navigate to="/" />;
   }
 

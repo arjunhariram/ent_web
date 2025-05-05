@@ -30,6 +30,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Add API routes before the catch-all route
 app.use('/api/validate', inputValueCheckerRoutes);
 app.use('/api/otp', otpRoutes);
 app.use('/api/user', userRoutes);
@@ -55,7 +56,6 @@ app.get('/api/matches', async (req, res) => {
   }
 });
 
-
 app.get('/api/health', async (req, res) => {
   try {
     const dbResult = await pool.query('SELECT 1 as connection_test');
@@ -76,8 +76,16 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+// Static file routes
 app.use('/styles', Styles);
 app.use('/assets/teamlogos', TeamLogos);
+
+// Define a specific route for video viewing
+app.get('/watch/:sport/:tournament/:team1/:team2', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/app/dist/index.html'));
+});
+
+// DefaultView should be last to handle all other routes
 app.use('/', DefaultView);
 
 // Replace the 404 error handler with one that serves the HTML error page
@@ -95,7 +103,6 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 4000;
 let server;
 
-
 const startServer = async () => {
   return new Promise((resolve, reject) => {
     try {
@@ -105,15 +112,12 @@ const startServer = async () => {
         resolve(server);
       });
 
-
       server.on('error', (error) => {
         if (error.code === 'EADDRINUSE') {
           console.error(`⚠️ Port ${PORT} is already in use`);
 
-
           const alternativePort = PORT + 1;
           console.log(`Attempting to use alternative port: ${alternativePort}...`);
-
 
           if (process.env.KUBERNETES_SERVICE_HOST) {
             console.log('Running in Kubernetes - exiting with code 1 to trigger restart policy');
@@ -125,13 +129,11 @@ const startServer = async () => {
             console.error('2. Use a different port by setting the PORT environment variable');
             console.error(`3. Run: node scripts/killServer.js ${PORT} to attempt auto-recovery`);
 
-
             server = app.listen(alternativePort, () => {
               console.log(`Server now running on alternative port ${alternativePort}`);
               console.log(`Access the application at http://localhost:${alternativePort}`);
               resolve(server);
             });
-
 
             server.on('error', (altError) => {
               console.error(`Failed to start server on alternative port ${alternativePort}:`, altError.message);
@@ -144,7 +146,6 @@ const startServer = async () => {
         }
       });
 
-
       setupGracefulShutdown(server);
 
     } catch (error) {
@@ -154,17 +155,14 @@ const startServer = async () => {
   });
 };
 
-
 function setupGracefulShutdown(server) {
 
   ['SIGINT', 'SIGTERM', 'SIGQUIT'].forEach(signal => {
     process.on(signal, () => {
       console.log(`Received ${signal}. Shutting down gracefully...`);
 
-
       server.close(() => {
         console.log('HTTP server closed');
-
 
         Promise.all([
           (async () => {
@@ -195,7 +193,6 @@ function setupGracefulShutdown(server) {
           process.exit(1);
         });
       });
-
 
       setTimeout(() => {
         console.error('Shutdown timed out, forcing exit');

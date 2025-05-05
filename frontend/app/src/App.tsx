@@ -134,7 +134,8 @@ const MainApp: React.FC = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
-        <Route path="/video-view" element={<VideoView />} />
+        <Route path="/video-view" element={<VideoView />} /> {/* Keep for backward compatibility */}
+        <Route path="/watch/:sport/:tournament/:team1/:team2" element={<VideoView />} />
       </Routes>
     </BrowserRouter>
   );

@@ -6,18 +6,23 @@ class RedisClient {
     this.isConnected = false;
     this.memoryCache = {};
     this.useFallback = process.env.REDIS_USE_FALLBACK !== 'false'; // Enable fallback by default
+    this.reconnectTimer = null;
     this.init();
   }
 
   init() {
     try {
+      // For Kubernetes, we use environment variables to configure Redis
       this.client = new Redis({
         host: process.env.REDIS_HOST || 'localhost',
         port: process.env.REDIS_PORT || 6379,
+        password: process.env.REDIS_PASSWORD || null,
         connectTimeout: 5000,
-        maxRetriesPerRequest: 2,
+        maxRetriesPerRequest: 3,
+        enableReadyCheck: true,
         retryStrategy(times) {
-          const delay = Math.min(times * 50, 2000);
+          // Exponential backoff with max delay of 5s
+          const delay = Math.min(Math.exp(times) * 100, 5000);
           return delay;
         }
       });
@@ -25,11 +30,27 @@ class RedisClient {
       this.client.on('connect', () => {
         this.isConnected = true;
         console.log('Redis connected successfully');
+        
+        // Clear any reconnection timer
+        if (this.reconnectTimer) {
+          clearTimeout(this.reconnectTimer);
+          this.reconnectTimer = null;
+        }
       });
 
       this.client.on('error', (err) => {
         this.isConnected = false;
         console.error('Redis connection error:', err.message);
+        
+        // If we're in Kubernetes, don't set up our own reconnection timer
+        // as the Redis client and Kubernetes will handle it
+        if (!process.env.KUBERNETES_SERVICE_HOST && !this.reconnectTimer) {
+          this.reconnectTimer = setTimeout(() => {
+            console.log('Manually attempting Redis reconnection...');
+            this.reconnectTimer = null;
+            this.init();
+          }, 10000); // Try reconnecting after 10 seconds
+        }
       });
 
       this.client.on('reconnecting', () => {
@@ -146,6 +167,24 @@ class RedisClient {
   toggleFallback(enable) {
     this.useFallback = enable;
     console.log(`Memory fallback ${enable ? 'enabled' : 'disabled'}`);
+  }
+
+  async quit() {
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+    
+    if (this.client && this.isConnected) {
+      try {
+        await this.client.quit();
+        return true;
+      } catch (error) {
+        console.error('Error while quitting Redis client:', error);
+        return false;
+      }
+    }
+    return true;
   }
 }
 
