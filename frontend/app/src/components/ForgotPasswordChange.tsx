@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import '../styles/login_modal.css';
 
-interface ForgetPasswordChangeProps {
+interface ForgotPasswordChangeProps {
   onClose: () => void;
   mobileNumber: string;
 }
 
-const ForgetPasswordChange: React.FC<ForgetPasswordChangeProps> = ({ onClose, mobileNumber }) => {
+const ForgotPasswordChange: React.FC<ForgotPasswordChangeProps> = ({ onClose, mobileNumber }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -40,8 +40,8 @@ const ForgetPasswordChange: React.FC<ForgetPasswordChangeProps> = ({ onClose, mo
     try {
       const cleanNumber = mobileNumber.replace(/\D/g, '');
       
-      // Using the existing set-password endpoint which already has validation
-      const response = await fetch('http://localhost:4000/api/user/set-password', {
+      // Using the reset-password endpoint instead of set-password
+      const response = await fetch('http://localhost:4000/api/user/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -157,4 +157,4 @@ const ForgetPasswordChange: React.FC<ForgetPasswordChangeProps> = ({ onClose, mo
   );
 };
 
-export default ForgetPasswordChange;
+export default ForgotPasswordChange;

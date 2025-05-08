@@ -1,23 +1,20 @@
 import React, { useState, KeyboardEvent } from 'react';
 import '../styles/login_modal.css';
-import OTPModal from './OTPModal';
+import ForgotPasswordOTP from './ForgotPasswordOTP';
 
-interface CreateAccountProps {
+interface ForgotPasswordInputProps {
   onClose: () => void;
   onSwitchToLogin: () => void;
 }
 
-const CreateAccount: React.FC<CreateAccountProps> = ({ onClose, onSwitchToLogin }) => {
+const ForgotPasswordInput: React.FC<ForgotPasswordInputProps> = ({ onClose, onSwitchToLogin }) => {
   const [showOTPModal, setShowOTPModal] = useState(false);
-  const [hideCreateAccountModal, setHideCreateAccountModal] = useState(false);
+  const [hideForgotPasswordModal, setHideForgotPasswordModal] = useState(false);
   const [mobileNumber, setMobileNumber] = useState('');
   const [mobileError, setMobileError] = useState('');
 
-
   const validateIndianMobileNumber = (number: string): { isValid: boolean; message: string } => {
-
     const cleanNumber = number.replace(/\s+/g, '').replace(/[-()+]/g, '');
-
 
     if (cleanNumber.length !== 10) {
       return {
@@ -26,14 +23,12 @@ const CreateAccount: React.FC<CreateAccountProps> = ({ onClose, onSwitchToLogin 
       };
     }
 
-
     if (!/^[6-9]/.test(cleanNumber)) {
       return {
         isValid: false,
         message: 'Please enter a valid Indian mobile number'
       };
     }
-
 
     return {
       isValid: true,
@@ -47,7 +42,6 @@ const CreateAccount: React.FC<CreateAccountProps> = ({ onClose, onSwitchToLogin 
     if (/^\d*$/.test(value)) {
       setMobileNumber(value);
 
-
       if (mobileError) {
         setMobileError('');
       }
@@ -55,18 +49,16 @@ const CreateAccount: React.FC<CreateAccountProps> = ({ onClose, onSwitchToLogin 
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-
     const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight'];
-
 
     if (!allowedKeys.includes(e.key) && !/^\d$/.test(e.key)) {
       e.preventDefault();
     }
   };
 
-  const handleCreateAccount = async (e: React.MouseEvent | React.FormEvent) => {
+  const handleForgotPassword = async (e: React.MouseEvent | React.FormEvent) => {
     if (e.preventDefault) e.preventDefault();
-    console.log('Create Account button clicked!');
+    console.log('Forgot Password button clicked!');
 
     try {
       if (!mobileNumber) {
@@ -81,34 +73,42 @@ const CreateAccount: React.FC<CreateAccountProps> = ({ onClose, onSwitchToLogin 
         return;
       }
 
-      // Use only one API call to create-account endpoint since it already handles validation
-      const response = await fetch('http://localhost:4000/api/user/create-account', {
+      // Use the forgot-password endpoint directly since it already handles validation
+      const response = await fetch('http://localhost:4000/api/auth/forgot-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ mobileNumber })
-      }).catch(fetchError => {
-        throw fetchError;
       });
 
       const data = await response.json();
       
-      if (data.message === 'This mobile number is already registered. Please login instead.') {
-        setMobileError(data.message);
+      if (response.status === 404) {
+        setMobileError('No account linked with this mobile number');
+        return;
+      }
+
+      if (response.status === 400) {
+        setMobileError(data.message || 'Invalid mobile number');
+        return;
+      }
+
+      if (response.status === 429) {
+        setMobileError(data.message || 'Too many OTP requests');
         return;
       }
 
       // If mobile number is valid and OTP is generated
       if (data.otp) {
-        alert(`Your OTP for verification is: ${data.otp}`);
+        alert(`Your OTP for password reset is: ${data.otp}`);
 
         if (data.otpsRemaining === 1) {
-          alert('Warning: This is your last available OTP. After this, you will need to wait 4 hours before requesting more OTPs.');
+          alert('Warning: This is your last available OTP. After this, you will need to wait before requesting more OTPs.');
         }
 
         setShowOTPModal(true);
-        setHideCreateAccountModal(true);
+        setHideForgotPasswordModal(true);
       } else {
         setMobileError(data.message || 'OTP generation failed');
       }
@@ -122,7 +122,7 @@ const CreateAccount: React.FC<CreateAccountProps> = ({ onClose, onSwitchToLogin 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      handleCreateAccount(e);
+      handleForgotPassword(e);
     }
   };
 
@@ -138,20 +138,20 @@ const CreateAccount: React.FC<CreateAccountProps> = ({ onClose, onSwitchToLogin 
 
   return (
     <>
-      {!hideCreateAccountModal && (
+      {!hideForgotPasswordModal && (
         <div className="modal-overlay" onClick={handleOverlayClick}>
           <div className="modal-content">
             <button className="close-button" onClick={onClose}>
               &times;
             </button>
-            <h2>Create Account</h2>
-            <form onSubmit={handleCreateAccount}>
+            <h2>Forgot Password</h2>
+            <form onSubmit={handleForgotPassword}>
               <div className="form-group">
-                <label htmlFor="newMobile">Mobile Number</label>
+                <label htmlFor="mobileNumber">Mobile Number</label>
                 <input
                   type="tel"
-                  id="newMobile"
-                  placeholder="Enter your mobile number"
+                  id="mobileNumber"
+                  placeholder="Enter your registered mobile number"
                   value={mobileNumber}
                   onChange={handleMobileChange}
                   onKeyDown={handleKeyDown}
@@ -160,24 +160,24 @@ const CreateAccount: React.FC<CreateAccountProps> = ({ onClose, onSwitchToLogin 
                 />
                 {mobileError && <div className="error-message">{mobileError}</div>}
                 <div className="mobile-requirements">
-                  Please enter a valid 10-digit Indian mobile number.
+                  Please enter your registered 10-digit Indian mobile number.
                 </div>
               </div>
               <button
                 type="submit"
                 className="login-button"
               >
-                Create Account
+                Send OTP
               </button>
             </form>
             <p className="create-account-link">
-              Already have an account? <a href="#" onClick={onSwitchToLogin}>Login</a>
+              Remember your password? <a href="#" onClick={onSwitchToLogin}>Login</a>
             </p>
           </div>
         </div>
       )}
       {showOTPModal && (
-        <OTPModal
+        <ForgotPasswordOTP
           onClose={closeOTPModal}
           mobileNumber={mobileNumber}
         />
@@ -186,4 +186,4 @@ const CreateAccount: React.FC<CreateAccountProps> = ({ onClose, onSwitchToLogin 
   );
 };
 
-export default CreateAccount;
+export default ForgotPasswordInput;

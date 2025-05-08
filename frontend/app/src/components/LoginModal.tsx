@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/login_modal.css';
 import CreateAccount from './CreateAccount';
-import ForgetPasswordInput from './ForgetPasswordInput';
+import ForgotPasswordInput from './ForgotPasswordInput';
 
 interface LoginModalProps {
   onClose: () => void;
@@ -55,7 +55,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ mobile, password }),
+        body: JSON.stringify({ mobileNumber: mobile, password }),
       });
       
       const data = await response.json();
@@ -88,7 +88,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose }) => {
 
   if (showForgotPassword) {
     return (
-      <ForgetPasswordInput
+      <ForgotPasswordInput
         onClose={onClose}
         onSwitchToLogin={() => setShowForgotPassword(false)}
       />

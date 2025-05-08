@@ -7,15 +7,15 @@ import DefaultView from './routes/DefaultView.js';
 import './cron/matchStatusUpdater.js';
 import Styles from './routes/Styles.js';
 import TeamLogos from './routes/TeamLogos.js';
-import validateMobileNumber from './middleware/InputValueChecker.js';
-import validatePassword from './middleware/PasswordValidator.js';
-import inputValueCheckerRoutes from './routes/InputValueChecker.js';
 import { getUpcomingMatches } from './api/Matchinfo.js';
-import otpRoutes from './routes/otpRoutes.js';
-import userRoutes from './routes/userRoutes.js';
-import authRoutes from './routes/authRoutes.js';
 import pool from './db.js';
 import redisClient from './utils/redisClient.js';
+import CreateAccount from './routes/CreateAccount.js';
+import otpRoutes from './routes/OTPRoutes.js';
+import SignupPasswordRoute from './routes/SignupPasswordRoute.js';
+import LoginRoute from './routes/LoginRoute.js';
+import ForgotPasswordInputRoute from './routes/ForgotPasswordInputRoute.js';
+import ForgotPasswordChangeRoute from './routes/ForgotPasswordChangeRoute.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,24 +30,14 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Add API routes before the catch-all route
-app.use('/api/validate', inputValueCheckerRoutes);
-app.use('/api/otp', otpRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api/auth', authRoutes);
-
-app.post('/api/validate/validate-mobile', validateMobileNumber);
-
-app.post('/api/validate/validate-password', validatePassword, (req, res) => {
-  res.json({ isValid: true });
-});
-
-app.post('/api/validate/change-password', validatePassword, (req, res) => {
-  res.json({ isValid: true });
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`); // Log incoming requests
+  next();
 });
 
 app.get('/api/matches', async (req, res) => {
   try {
+    console.log('Fetching upcoming matches'); // Log endpoint activity
     const matches = await getUpcomingMatches();
     res.json(matches);
   } catch (error) {
@@ -58,6 +48,7 @@ app.get('/api/matches', async (req, res) => {
 
 app.get('/api/health', async (req, res) => {
   try {
+    console.log('Performing health check'); // Log health check
     const dbResult = await pool.query('SELECT 1 as connection_test');
 
     const redisResult = await redisClient.ping();
@@ -76,27 +67,25 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Static file routes
 app.use('/styles', Styles);
 app.use('/assets/teamlogos', TeamLogos);
-
-// Define a specific route for video viewing
-app.get('/watch/:sport/:tournament/:team1/:team2', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/app/dist/index.html'));
-});
-
-// DefaultView should be last to handle all other routes
 app.use('/', DefaultView);
+app.use('/api/user', CreateAccount); 
+app.use('/api/user', otpRoutes);
+app.use('/api/user', SignupPasswordRoute);
+app.use('/api/auth', LoginRoute);
+app.use('/api/auth', ForgotPasswordInputRoute); // Add the new forgot password route
+app.use('/api/user', ForgotPasswordChangeRoute); // Register the password reset route
 
 // Replace the 404 error handler with one that serves the HTML error page
 app.use((req, res) => {
-  // Send the 404 error page instead of a JSON response
+  console.log(`404 Error: ${req.method} ${req.url} not found`); // Log 404 errors
   res.status(404).sendFile(path.join(__dirname, '../frontend/app/src/pages/ErrorPage404.html'));
 });
 
 // Update general error handler to also serve the error page for server errors
 app.use((err, req, res, next) => {
-  console.error('Server error:', err);
+  console.error('Server error:', err); // Log server errors
   res.status(500).sendFile(path.join(__dirname, '../frontend/app/src/pages/ErrorPage404.html'));
 });
 
@@ -106,7 +95,6 @@ let server;
 const startServer = async () => {
   return new Promise((resolve, reject) => {
     try {
-
       server = app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
         resolve(server);
@@ -123,7 +111,6 @@ const startServer = async () => {
             console.log('Running in Kubernetes - exiting with code 1 to trigger restart policy');
             process.exit(1);
           } else {
-
             console.error('Possible solutions:');
             console.error('1. Stop the other process using this port');
             console.error('2. Use a different port by setting the PORT environment variable');
@@ -156,7 +143,6 @@ const startServer = async () => {
 };
 
 function setupGracefulShutdown(server) {
-
   ['SIGINT', 'SIGTERM', 'SIGQUIT'].forEach(signal => {
     process.on(signal, () => {
       console.log(`Received ${signal}. Shutting down gracefully...`);

@@ -70,7 +70,12 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ onClose, mobileNumber }) 
       const cleanNumber = mobileNumber.replace(/\D/g, '');
       console.log('Sending password set request for:', cleanNumber);
 
-      const response = await fetch('http://localhost:4000/api/user/set-password', {
+      // Use dynamic base URL based on current environment
+      const baseUrl = window.location.hostname === 'localhost' 
+        ? 'http://localhost:4000' 
+        : window.location.origin;
+      
+      const response = await fetch(`${baseUrl}/api/user/set-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

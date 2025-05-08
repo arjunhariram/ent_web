@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/login_modal.css';
-import ForgetPasswordChange from './ForgetPasswordChange';
+import ForgotPasswordChange from './ForgotPasswordChange';
 
-interface ForgetPasswordOTPProps {
+interface ForgotPasswordOTPProps {
   onClose: () => void;
   mobileNumber: string;
 }
 
-const ForgetPasswordOTP: React.FC<ForgetPasswordOTPProps> = ({ onClose, mobileNumber }) => {
+const ForgotPasswordOTP: React.FC<ForgotPasswordOTPProps> = ({ onClose, mobileNumber }) => {
   const [otp, setOtp] = useState<string[]>(Array(5).fill(""));
   const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
   const [isOtpComplete, setIsOtpComplete] = useState(false);
@@ -60,8 +60,8 @@ const ForgetPasswordOTP: React.FC<ForgetPasswordOTPProps> = ({ onClose, mobileNu
 
     try {
       setVerificationError(null);
-      // Use the existing resend OTP endpoint
-      const response = await fetch('http://localhost:4000/api/otp/resend', {
+      // Use the same resend OTP endpoint as OTPModal
+      const response = await fetch('http://localhost:4000/api/user/resend-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -97,8 +97,8 @@ const ForgetPasswordOTP: React.FC<ForgetPasswordOTPProps> = ({ onClose, mobileNu
       const otpString = otp.join('');
 
       try {
-        // Use the existing verify OTP endpoint
-        const response = await fetch('http://localhost:4000/api/otp/verify', {
+        // Use the same verify OTP endpoint as OTPModal
+        const response = await fetch('http://localhost:4000/api/user/verify-otp', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ const ForgetPasswordOTP: React.FC<ForgetPasswordOTPProps> = ({ onClose, mobileNu
   };
 
   if (showPasswordChangeModal) {
-    return <ForgetPasswordChange onClose={onClose} mobileNumber={mobileNumber} />;
+    return <ForgotPasswordChange onClose={onClose} mobileNumber={mobileNumber} />;
   }
 
   return (
@@ -176,4 +176,4 @@ const ForgetPasswordOTP: React.FC<ForgetPasswordOTPProps> = ({ onClose, mobileNu
   );
 };
 
-export default ForgetPasswordOTP;
+export default ForgotPasswordOTP;

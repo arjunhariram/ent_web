@@ -15,8 +15,7 @@ const OTPModal: React.FC<OTPModalProps> = ({ onClose, mobileNumber }) => {
   const [verificationError, setVerificationError] = useState<string | null>(null);
   const [resendDisabled, setResendDisabled] = useState(true);
   const [resendCountdown, setResendCountdown] = useState(60);
-  const [resendAttemptsLeft, setResendAttemptsLeft] = useState(2);
-  const [otpsRemaining, setOtpsRemaining] = useState(3);
+  const [resendAttemptsLeft, setResendAttemptsLeft] = useState(2); // Start with 2 because initial send counts as 1
 
   useEffect(() => {
     setIsOtpComplete(otp.every(digit => digit !== ""));
@@ -63,7 +62,7 @@ const OTPModal: React.FC<OTPModalProps> = ({ onClose, mobileNumber }) => {
 
     try {
       setVerificationError(null);
-      const response = await fetch('http://localhost:4000/api/otp/resend', {
+      const response = await fetch('http://localhost:4000/api/user/resend-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -80,16 +79,15 @@ const OTPModal: React.FC<OTPModalProps> = ({ onClose, mobileNumber }) => {
           alert(`Your new OTP is: ${data.otp}`);
         }
 
-        if (data.resendAttemptsLeft !== undefined) {
-          setResendAttemptsLeft(data.resendAttemptsLeft);
+        // Calculate new attempts value first
+        const newAttemptsLeft = resendAttemptsLeft - 1;
+        setResendAttemptsLeft(newAttemptsLeft);
+        
+        // Only reset countdown if there are attempts remaining
+        if (newAttemptsLeft > 0) {
+          setResendCountdown(60);
+          setResendDisabled(true);
         }
-
-        if (data.otpsRemaining !== undefined) {
-          setOtpsRemaining(data.otpsRemaining);
-        }
-
-        setResendCountdown(60);
-        setResendDisabled(true);
       } else {
         if (data.timeRemaining) {
           setResendCountdown(data.timeRemaining);
@@ -107,7 +105,7 @@ const OTPModal: React.FC<OTPModalProps> = ({ onClose, mobileNumber }) => {
       const otpString = otp.join('');
 
       try {
-        const response = await fetch('http://localhost:4000/api/otp/verify', {
+        const response = await fetch('http://localhost:4000/api/user/verify-otp', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -176,22 +174,17 @@ const OTPModal: React.FC<OTPModalProps> = ({ onClose, mobileNumber }) => {
 
             <div className="resend-container">
               <button
-                className={`resend-button ${resendDisabled || resendAttemptsLeft <= 0 ? 'disabled-button' : ''}`}
+                className={`resend-button ${resendDisabled || resendAttemptsLeft === 0 ? 'disabled-button' : ''}`}
                 onClick={handleResendClick}
-                disabled={resendDisabled || resendAttemptsLeft <= 0}
+                disabled={resendDisabled || resendAttemptsLeft === 0}
               >
-                {resendDisabled ?
-                  `Resend OTP in ${resendCountdown}s` :
-                  (resendAttemptsLeft > 0 ? 'Resend OTP' : 'No more resend attempts')}
+                {resendAttemptsLeft > 0 
+                  ? (resendDisabled ? `Resend OTP in ${resendCountdown}s` : 'Resend OTP')
+                  : 'No more resend attempts'}
               </button>
-              {resendAttemptsLeft <= 0 && (
+              {resendAttemptsLeft === 0 && (
                 <span className="attempts-left">
                   Maximum resend attempts reached
-                </span>
-              )}
-              {otpsRemaining === 0 && (
-                <span className="daily-limit-note">
-                  You've reached the maximum OTP limit. Try again after 4 hours.
                 </span>
               )}
             </div>
