@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { isTokenBlacklisted } from '../utils/JWTinvalidator.js'; // Import blacklist checker
+import redisClient from '../utils/redisClient.js'; // Ensure redisClient is available if not already
 
 // Get the directory path of the current module
 const __filename = fileURLToPath(import.meta.url);
@@ -21,7 +23,7 @@ if (!JWT_SECRET) {
  * @param {string} token - JWT token to verify
  * @returns {Object} - { isValid: boolean, mobileNumber: string|null, error: string|null }
  */
-export const verifyToken = (token) => {
+export const verifyToken = async (token) => { // Make function async
   try {
     if (!token) {
       return {
@@ -41,6 +43,15 @@ export const verifyToken = (token) => {
 
     // Remove 'Bearer ' prefix if present
     const tokenString = token.startsWith('Bearer ') ? token.slice(7) : token;
+
+    // Check if token is blacklisted
+    if (await isTokenBlacklisted(tokenString)) {
+      return {
+        isValid: false,
+        mobileNumber: null,
+        error: 'Token has been invalidated' // Or 'Signed out'
+      };
+    }
 
     const decoded = jwt.verify(tokenString, JWT_SECRET);
     
@@ -74,7 +85,7 @@ export const verifyToken = (token) => {
  * @param {Object} res - Express response object
  * @param {Function} next - Express next middleware function
  */
-export const jwtMiddleware = (req, res, next) => {
+export const jwtMiddleware = async (req, res, next) => { // Make function async
   const authHeader = req.headers.authorization;
   
   if (!authHeader) {
@@ -82,7 +93,7 @@ export const jwtMiddleware = (req, res, next) => {
   }
   
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
-  const verification = verifyToken(token);
+  const verification = await verifyToken(token); // Await the async verifyToken
   
   if (!verification.isValid) {
     return res.status(401).json({ message: verification.error });

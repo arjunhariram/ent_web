@@ -21,6 +21,35 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ onChangePassword, onP
     setShowInvoiceModal(false);
   };
 
+  const handleSignOut = async () => {
+    const token = localStorage.getItem('authToken'); // Or however your token is stored
+    if (token) {
+      try {
+        const response = await fetch('/api/auth/signout', { // Ensure this matches your backend route
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          console.log('Successfully signed out from server.');
+        } else {
+          const errorData = await response.json();
+          console.error('Sign out failed on server:', errorData.message || response.statusText);
+          // Optionally, inform the user about the server-side sign-out failure
+        }
+      } catch (error) {
+        console.error('Error during server sign out:', error);
+        // Optionally, inform the user about the network error
+      }
+    }
+    // Always call the onSignOut prop to perform client-side cleanup (e.g., remove token, redirect)
+    // regardless of server response, to ensure user is logged out client-side.
+    onSignOut();
+  };
+
   return (
     <>
       <div className="profile-dropdown">
@@ -42,7 +71,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ onChangePassword, onP
         >
           Past Purchases
         </div>
-        <button className="dropdown-signout" onClick={onSignOut}>
+        <button className="dropdown-signout" onClick={handleSignOut}>
           Sign Out
         </button>
       </div>
