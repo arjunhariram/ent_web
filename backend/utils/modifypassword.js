@@ -1,5 +1,6 @@
 import pool from '../db.js';
 import { doesMobileNumberExist } from '../controllers/MobileDBCheck.js';
+import { storePasswordInHistory } from './passwordmover.js';
 
 /**
  * Update user password in the database after verification
@@ -54,14 +55,9 @@ export async function updateUserPassword(mobileNumber, hashedPassword) {
     
     console.log('Found user ID:', userId);
     
-    // Prevent reuse of the same password 
-    if (currentPasswordHash === hashedPassword) {
-      await client.query('ROLLBACK');
-      return {
-        success: false,
-        message: 'New password must be different from current password'
-      };
-    }
+    // Store the current password in history before updating
+    await storePasswordInHistory(mobileNumber, currentPasswordHash);
+    console.log('Old password moved to history');
     
     // Update the password
     const updateQuery = 'UPDATE users SET password_hash = $1 WHERE id = $2';

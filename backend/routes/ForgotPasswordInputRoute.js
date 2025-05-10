@@ -5,6 +5,7 @@ import { generateOTP } from '../utils/OTPgenerator.js';
 import { hashAndSaveOTP } from '../utils/OTPhashsave.js';
 import { isOTPLimitNotReached, getRemainingOTPAttempts } from '../middleware/OTPcountcheck.js';
 import { incrementOTPCount } from '../utils/OTPcount.js';
+import redisClientInstance from '../utils/redisClient.js';
 
 const router = express.Router();
 
@@ -25,6 +26,17 @@ router.post('/forgot-password', async (req, res) => {
 
     if (!exists) {
       return res.status(404).json({ message: 'No account linked with this mobile number' });
+    }
+    
+    // Check if there was a recent password reset for this mobile number
+    const resetKey = `password_reset:${mobileNumber}`;
+    const recentReset = await redisClientInstance.getJson(resetKey);
+    
+    if (recentReset) {
+      console.log('Recent password reset detected for:', mobileNumber);
+      return res.status(403).json({ 
+        message: 'Abnormal Activity detected, please try again later.' 
+      });
     }
 
     // Check if OTP limit is reached
