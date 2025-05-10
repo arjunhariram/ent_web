@@ -4,6 +4,7 @@ import { validatePasswordFormat } from '../middleware/PasswordFormatValidator.js
 import { hashPassword } from '../utils/PasswordHash.js';
 import { updateUserPassword } from '../utils/modifypassword.js';
 import redisClientInstance from '../utils/redisClient.js';
+import { verifyPasswordNotOverlapping } from '../utils/passwordoverlapprevention.js';
 
 const router = express.Router();
 
@@ -49,6 +50,17 @@ router.post('/reset-password', async (req, res) => {
         success: false,
         message: passwordValidationResult.message,
         details: passwordValidationResult.details
+      });
+    }
+    
+    // Step 2.5: Check if new password overlaps with current/past passwords
+    console.log('[DEBUG] Checking password overlap with current/past passwords');
+    const overlapResult = await verifyPasswordNotOverlapping(mobileNumber, password);
+    if (!overlapResult.success) {
+      console.log(`[DEBUG] Password overlap check failed: ${overlapResult.message}`);
+      return res.status(400).json({
+        success: false,
+        message: overlapResult.message
       });
     }
     

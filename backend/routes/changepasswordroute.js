@@ -4,6 +4,7 @@ import { authenticateUser } from '../utils/Auth.js';
 import { validatePasswordFormat, passwordsMatch } from '../middleware/PasswordFormatValidator.js';
 import { hashPassword } from '../utils/PasswordHash.js';
 import { updateUserPassword } from '../utils/modifypassword.js';
+import { verifyPasswordNotOverlapping } from '../utils/passwordoverlapprevention.js';
 
 const router = express.Router();
 
@@ -47,6 +48,15 @@ router.post('/change-password', jwtMiddleware, async (req, res) => {
       return res.status(400).json({
         success: false,
         message: matchResult.message
+      });
+    }
+    
+    // Step 3.5: Check if new password overlaps with current/past passwords
+    const overlapResult = await verifyPasswordNotOverlapping(mobileNumber, newPassword);
+    if (!overlapResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: overlapResult.message
       });
     }
     
