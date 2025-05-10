@@ -1,8 +1,8 @@
 import express from 'express';
 import { checkOTPVerification } from '../utils/OTPVerifiedChecker.js';
-import { validatePasswordFormat, passwordsMatch } from '../middleware/PasswordFormatValidator.js';
+import { validatePasswordFormat } from '../middleware/PasswordFormatValidator.js';
 import { hashPassword } from '../utils/PasswordHash.js';
-import { updateUserPassword } from '../utils/otpmodifypassword.js';
+import { updateUserPassword } from '../utils/modifypassword.js';
 import redisClientInstance from '../utils/redisClient.js';
 
 const router = express.Router();
@@ -27,7 +27,6 @@ router.post('/reset-password', async (req, res) => {
       });
     }
     
-    // No need to clean mobile number again as it's already cleaned in the frontend
     // Step 1: Check if OTP was verified for this mobile number
     console.log(`[DEBUG] Checking OTP verification for mobile: ${mobileNumber.slice(0, 4) + '****'}`);
     const otpVerificationResult = await checkOTPVerification(mobileNumber);
@@ -40,16 +39,7 @@ router.post('/reset-password', async (req, res) => {
       });
     }
 
-    // Step 2: Check if passwords match
-    if (!passwordsMatch(password, confirmPassword)) {
-      console.log('[DEBUG] Passwords do not match');
-      return res.status(400).json({
-        success: false,
-        message: 'Passwords do not match'
-      });
-    }
-    
-    // Step 3: Validate password format
+    // Step 2: Validate password format (Step number kept for consistency)
     console.log('[DEBUG] Validating password format');
     const passwordValidationResult = validatePasswordFormat(password);
     console.log(`[DEBUG] Password validation: ${passwordValidationResult.success ? 'Valid' : 'Invalid'}`);
@@ -62,12 +52,12 @@ router.post('/reset-password', async (req, res) => {
       });
     }
     
-    // Step 4: Hash the password
+    // Step 3: Hash the password
     console.log('[DEBUG] Hashing password');
     const hashedPassword = await hashPassword(password);
     console.log('[DEBUG] Password hashed successfully');
     
-    // Step 5: Update user's password in database
+    // Step 4: Update user's password in database
     console.log(`[DEBUG] Updating password for mobile: ${mobileNumber.slice(0, 4) + '****'}`);
     const updateResult = await updateUserPassword(mobileNumber, hashedPassword);
     console.log(`[DEBUG] Database update result: ${updateResult.success ? 'Success' : 'Failed'}, Message: ${updateResult.message}`);
@@ -79,7 +69,7 @@ router.post('/reset-password', async (req, res) => {
       });
     }
     
-    // Step 6: Store reset record in Redis (for tracking recent resets)
+    // Step 5: Store reset record in Redis (for tracking recent resets)
     const resetKey = `password_reset:${mobileNumber}`;
     await redisClientInstance.setJson(resetKey, { 
       resetTime: new Date().toISOString(),

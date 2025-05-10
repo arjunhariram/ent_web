@@ -16,6 +16,7 @@ import SignupPasswordRoute from './routes/SignupPasswordRoute.js';
 import LoginRoute from './routes/LoginRoute.js';
 import ForgotPasswordInputRoute from './routes/ForgotPasswordInputRoute.js';
 import ForgotPasswordChangeRoute from './routes/ForgotPasswordChangeRoute.js';
+import ChangePasswordRoute from './routes/changepasswordroute.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -76,6 +77,7 @@ app.use('/api/user', SignupPasswordRoute);
 app.use('/api/auth', LoginRoute);
 app.use('/api/auth', ForgotPasswordInputRoute); // Add the new forgot password route
 app.use('/api/user', ForgotPasswordChangeRoute); // Register the password reset route
+app.use('/api/auth', ChangePasswordRoute); // Register the change password route
 
 // Replace the 404 error handler with one that serves the HTML error page
 app.use((req, res) => {

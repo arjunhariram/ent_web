@@ -11,13 +11,6 @@ router.post('/login', async (req, res) => {
   console.log('Login attempt with mobile number:', mobileNumber); // Log login attempt
   
   try {
-    // Check if required fields are provided
-    if (!mobileNumber || !password) {
-      return res.status(400).json({ 
-        message: `Please provide ${!mobileNumber ? 'mobile number' : ''}${!mobileNumber && !password ? ' and ' : ''}${!password ? 'password' : ''}` 
-      });
-    }
-    
     // Step 1: Validate mobile number format
     if (!isValidIndianMobileNumber(mobileNumber)) {
       console.log('Invalid mobile number format:', mobileNumber);

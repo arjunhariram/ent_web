@@ -79,13 +79,17 @@ export function validatePasswordFormat(password) {
  * @returns {Object} - Result with success flag and message
  */
 export function passwordsMatch(password, confirmPassword) {
+  console.log('Checking if passwords match');
+  
   if (password !== confirmPassword) {
+    console.log('Password match validation failed');
     return {
       success: false,
       message: 'Passwords do not match'
     };
   }
   
+  console.log('Password match validation successful');
   return {
     success: true,
     message: 'Passwords match'

@@ -103,9 +103,6 @@ const CreateAccount: React.FC<CreateAccountProps> = ({ onClose, onSwitchToLogin 
       if (data.otp) {
         alert(`Your OTP for verification is: ${data.otp}`);
 
-        if (data.otpsRemaining === 1) {
-          alert('Warning: This is your last available OTP. After this, you will need to wait 4 hours before requesting more OTPs.');
-        }
 
         setShowOTPModal(true);
         setHideCreateAccountModal(true);
