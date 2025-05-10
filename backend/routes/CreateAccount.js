@@ -3,8 +3,9 @@ import { isValidIndianMobileNumber } from '../middleware/MobileFormatChecker.js'
 import { doesMobileNumberExist } from '../controllers/MobileDBCheck.js';
 import { generateOTP } from '../utils/OTPgenerator.js';
 import { hashAndSaveOTP } from '../utils/OTPhashsave.js';
-import { isOTPLimitNotReached, getRemainingOTPAttempts } from '../middleware/OTPcountcheck.js';
 import { incrementOTPCount } from '../utils/OTPcount.js';
+import { checkMobileNumberOTPStatus, getOTPStatusMessage } from '../utils/mobilenumberOTPstatus.js';
+import { getRemainingOTPAttempts } from '../middleware/OTPcountcheck.js';
 
 const router = express.Router();
 
@@ -27,11 +28,14 @@ router.post('/create-account', async (req, res) => {
       return res.status(200).json({ message: 'This mobile number is already registered. Please login instead.' }); // Adjusted response
     }
 
-    // Check if OTP limit is reached
-    const isWithinLimit = await isOTPLimitNotReached(mobileNumber);
-    if (!isWithinLimit) {
-      console.log('OTP request limit exceeded for:', mobileNumber);
-      return res.status(429).json({ message: 'Too many OTPs have been requested. Please try again later.' });
+    // Check comprehensive OTP status
+    const otpStatus = await checkMobileNumberOTPStatus(mobileNumber);
+    
+    if (!otpStatus.isEligibleForOTP) {
+      console.log('OTP not eligible:', mobileNumber);
+      return res.status(429).json({ 
+        message: getOTPStatusMessage(otpStatus)
+      });
     }
 
     // Generate a 5-digit OTP

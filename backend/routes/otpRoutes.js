@@ -3,14 +3,18 @@ import { generateOTP } from '../utils/OTPgenerator.js';
 import { hashAndSaveOTP } from '../utils/OTPhashsave.js';
 import { compareOTP } from '../middleware/OTPcompare.js';
 import { doesMobileNumberExist } from '../controllers/MobileDBCheck.js';
-import { isOTPLimitNotReached, getRemainingOTPAttempts } from '../middleware/OTPcountcheck.js';
 import { incrementOTPCount } from '../utils/OTPcount.js';
+import { resetIncorrectOTPCount } from '../utils/OTPabusepreventor.js';
+import { checkMobileNumberOTPStatus, getOTPStatusMessage } from '../utils/mobilenumberOTPstatus.js';
+import { checkIPStatus, getIPStatusMessage, incrementIPRequestCount } from '../utils/IPLimiter.js';
+import { getRemainingOTPAttempts } from '../middleware/OTPcountcheck.js';
 
 const router = express.Router();
 
 // Verify OTP endpoint
 router.post('/verify-otp', async (req, res) => {
   const { mobileNumber, otp } = req.body;
+  const ipAddress = req.ip || req.connection.remoteAddress;
 
   try {
     if (!mobileNumber || !otp) {
@@ -20,18 +24,51 @@ router.post('/verify-otp', async (req, res) => {
       });
     }
 
+    // Check IP status
+    const ipStatus = await checkIPStatus(ipAddress);
+    if (!ipStatus.isAllowedToMakeRequests) {
+      return res.status(429).json({
+        isValid: false,
+        message: getIPStatusMessage(ipStatus),
+        attemptsRemaining: ipStatus.remainingRequests
+      });
+    }
+
+    // Increment IP request count
+    await incrementIPRequestCount(ipAddress);
+
+    // Check mobile number OTP status
+    const otpStatus = await checkMobileNumberOTPStatus(mobileNumber);
+    if (!otpStatus.isEligibleForOTP && otpStatus.isBlockedByIncorrectAttempts) {
+      return res.status(429).json({
+        isValid: false,
+        message: getOTPStatusMessage(otpStatus),
+        blockedFor: Math.ceil(otpStatus.blockTimeRemaining / 60), // minutes
+        attemptsRemaining: 0
+      });
+    }
+
     // Verify the OTP using compareOTP function from OTPcompare.js
     const isValid = await compareOTP(mobileNumber, otp);
 
     if (isValid) {
+      // Reset incorrect attempt counter on successful verification
+      await resetIncorrectOTPCount(mobileNumber);
+      
       return res.status(200).json({
         isValid: true,
         message: 'OTP verified successfully'
       });
     } else {
+      // Re-check status after failed attempt
+      const updatedOtpStatus = await checkMobileNumberOTPStatus(mobileNumber);
+      
       return res.status(400).json({
         isValid: false,
-        message: 'Invalid OTP or OTP expired'
+        message: updatedOtpStatus.remainingIncorrectAttempts > 0 
+          ? `Invalid OTP or OTP expired. ${updatedOtpStatus.remainingIncorrectAttempts} attempts remaining.` 
+          : 'Invalid OTP. Your account has been temporarily blocked due to too many failed attempts.',
+        attemptsRemaining: updatedOtpStatus.remainingIncorrectAttempts
       });
     }
   } catch (error) {
@@ -46,6 +83,7 @@ router.post('/verify-otp', async (req, res) => {
 // Resend OTP endpoint
 router.post('/resend-otp', async (req, res) => {
   const { mobileNumber } = req.body;
+  const ipAddress = req.ip || req.connection.remoteAddress;
 
   try {
     if (!mobileNumber) {
@@ -55,13 +93,26 @@ router.post('/resend-otp', async (req, res) => {
       });
     }
 
-    // Check if the OTP limit has been reached
-    const isWithinLimit = await isOTPLimitNotReached(mobileNumber);
-    if (!isWithinLimit) {
+    // Check IP status
+    const ipStatus = await checkIPStatus(ipAddress);
+    if (!ipStatus.isAllowedToMakeRequests) {
       return res.status(429).json({
         isValid: false,
-        message: 'Too many OTPs have been requested. Please try again later.',
+        message: getIPStatusMessage(ipStatus),
         otpsRemaining: 0
+      });
+    }
+
+    // Increment IP request count
+    await incrementIPRequestCount(ipAddress);
+
+    // Check mobile OTP status
+    const otpStatus = await checkMobileNumberOTPStatus(mobileNumber);
+    if (!otpStatus.isEligibleForOTP) {
+      return res.status(429).json({
+        isValid: false,
+        message: getOTPStatusMessage(otpStatus),
+        otpsRemaining: otpStatus.remainingOTPRequests
       });
     }
 

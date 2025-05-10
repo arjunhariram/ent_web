@@ -3,9 +3,9 @@ import { isValidIndianMobileNumber } from '../middleware/MobileFormatChecker.js'
 import { doesMobileNumberExist } from '../controllers/MobileDBCheck.js';
 import { generateOTP } from '../utils/OTPgenerator.js';
 import { hashAndSaveOTP } from '../utils/OTPhashsave.js';
-import { isOTPLimitNotReached, getRemainingOTPAttempts } from '../middleware/OTPcountcheck.js';
 import { incrementOTPCount } from '../utils/OTPcount.js';
-import redisClientInstance from '../utils/redisClient.js';
+import { checkMobileNumberOTPStatus, getOTPStatusMessage } from '../utils/mobilenumberOTPstatus.js';
+import { getRemainingOTPAttempts } from '../middleware/OTPcountcheck.js';
 
 const router = express.Router();
 
@@ -28,22 +28,14 @@ router.post('/forgot-password', async (req, res) => {
       return res.status(404).json({ message: 'No account linked with this mobile number' });
     }
     
-    // Check if there was a recent password reset for this mobile number
-    const resetKey = `password_reset:${mobileNumber}`;
-    const recentReset = await redisClientInstance.getJson(resetKey);
+    // Check comprehensive OTP status
+    const otpStatus = await checkMobileNumberOTPStatus(mobileNumber);
     
-    if (recentReset) {
-      console.log('Recent password reset detected for:', mobileNumber);
-      return res.status(403).json({ 
-        message: 'Abnormal Activity detected, please try again later.' 
+    if (!otpStatus.isEligibleForOTP) {
+      console.log('OTP not eligible:', mobileNumber);
+      return res.status(429).json({ 
+        message: getOTPStatusMessage(otpStatus)
       });
-    }
-
-    // Check if OTP limit is reached
-    const isWithinLimit = await isOTPLimitNotReached(mobileNumber);
-    if (!isWithinLimit) {
-      console.log('OTP request limit exceeded for:', mobileNumber);
-      return res.status(429).json({ message: 'Too many OTPs have been requested. Please try again later.' });
     }
 
     // Generate a 5-digit OTP
