@@ -12,7 +12,21 @@ const teamLogosPath = path.join(__dirname, "../../frontend/app/src/assets/Teamlo
 
 router.get('/:filename', (req, res) => {
   const { filename } = req.params;
-  const filePath = path.join(teamLogosPath, filename);
+  
+  // Sanitize filename: prevent path traversal by removing directory components
+  // and only allow valid filename characters
+  const sanitizedFilename = path.basename(filename).replace(/[^a-zA-Z0-9_.-]/g, '');
+  
+  if (!sanitizedFilename || sanitizedFilename !== filename) {
+    return res.status(400).json({ error: 'Invalid filename' });
+  }
+  
+  const filePath = path.join(teamLogosPath, sanitizedFilename);
+  
+  // Ensure the final path is within the allowed directory
+  if (!filePath.startsWith(teamLogosPath)) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
 
   res.sendFile(filePath, (err) => {
     if (err) {
